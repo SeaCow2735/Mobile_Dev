@@ -11,12 +11,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private var selectedImageUri: Uri? = null
 
-    // Đăng ký launcher để chọn ảnh
+
     private val pickImage =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
             if (uri != null) {
                 selectedImageUri = uri
-                binding.imgAvatar.setImageURI(uri) // hiển thị ảnh vừa chọn
+                binding.imgAvatar.setImageURI(uri)
             }
         }
 
