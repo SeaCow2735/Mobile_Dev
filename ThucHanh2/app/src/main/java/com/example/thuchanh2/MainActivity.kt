@@ -46,7 +46,7 @@ fun NumberScreen() {
             .padding(horizontal = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(Modifier.height(160.dp)) // đẩy xuống giữa màn hình một chút
+        Spacer(Modifier.height(160.dp))
 
         Text(
             text = "Thực hành 02",
@@ -61,7 +61,6 @@ fun NumberScreen() {
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Ô nhập
             OutlinedTextField(
                 value = input,
                 onValueChange = { input = it },
@@ -75,20 +74,12 @@ fun NumberScreen() {
                 )},
                 shape = RoundedCornerShape(16.dp),
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = Color(0xFF222222),   // màu chữ khi nhập (focus)
-                    unfocusedTextColor = Color(0xFF222222), // màu chữ khi nhập (chưa focus)
-                    cursorColor = Color(0xFF222222)         // màu con trỏ
+                    focusedTextColor = Color(0xFF222222),
+                    unfocusedTextColor = Color(0xFF222222),
+                    cursorColor = Color(0xFF222222)
                 )
-
             )
-
             Spacer(Modifier.width(12.dp))
-
-            // Nút "Tạo"
-
-
-
-
             Button(
                 onClick = {
                     val n = input.trim().toIntOrNull()
@@ -97,7 +88,7 @@ fun NumberScreen() {
                         count = 0
                     } else {
                         error = null
-                        count = n.coerceIn(0, 200) // giới hạn tránh tạo quá nhiều
+                        count = n.coerceIn(0, 200)
                     }
                 },
                 modifier = Modifier
@@ -109,7 +100,6 @@ fun NumberScreen() {
             }
         }
 
-        // Dòng báo lỗi (khi nhập chữ)
         if (error != null) {
             Spacer(Modifier.height(8.dp))
             Text(
@@ -125,7 +115,6 @@ fun NumberScreen() {
 
         Spacer(Modifier.height(12.dp))
 
-        // Danh sách ô đỏ
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
@@ -134,14 +123,14 @@ fun NumberScreen() {
         ) {
             items((1..count).toList()) { number ->
                 Button(
-                    onClick = { /* nếu cần xử lý khi bấm ô đỏ */ },
+                    onClick = {},
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp)
                         .padding(vertical = 6.dp),
                     shape = RoundedCornerShape(24.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFFE74C3C), // đỏ
+                        containerColor = Color(0xFFE74C3C),
                         contentColor = Color.White
                     )
                 ) {
