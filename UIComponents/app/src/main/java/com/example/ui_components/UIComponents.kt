@@ -92,7 +92,7 @@ fun UIComponentsScreen(navController: NavController) {
             }
 
             Button(
-                onClick = {},
+                onClick = {navController.navigate(Routes.ImageDetail)},
                 modifier = Modifier
                     .padding(7.dp),
                 shape = RoundedCornerShape(16.dp),
@@ -107,6 +107,22 @@ fun UIComponentsScreen(navController: NavController) {
                 }
             }
 
+            Button(
+                onClick = {navController.navigate(Routes.IconDetail)},
+                modifier = Modifier
+                    .padding(7.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF6fb5f6))
+            ) {
+                Column (modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                ){
+                    Text("Icon", color = Color.Black)
+                    Text("Displays an Icon", color = Color.Black)
+                }
+            }
+
             Spacer(modifier = Modifier.height(15.dp))
 
             Text(
@@ -118,7 +134,7 @@ fun UIComponentsScreen(navController: NavController) {
                     .padding(vertical = 5.dp)
             )
             Button(
-                onClick = {},
+                onClick = {navController.navigate(Routes.TextField)},
                 modifier = Modifier
                     .padding(7.dp),
                 shape = RoundedCornerShape(16.dp),
@@ -135,7 +151,7 @@ fun UIComponentsScreen(navController: NavController) {
             }
 
             Button(
-                onClick = {},
+                onClick = {navController.navigate(Routes.PasswordField)},
                 modifier = Modifier
                     .padding(7.dp),
                 shape = RoundedCornerShape(16.dp),

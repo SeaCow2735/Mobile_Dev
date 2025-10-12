@@ -54,6 +54,10 @@ class MainActivity : ComponentActivity() {
                     composable("main") { MainLayoutScreen(navController) }
                     composable("ui_components") { UIComponentsScreen(navController) }
                     composable("text_detail"){TextDetailScreen(navController)}
+                    composable("image_detail"){ImageDetailScreen(navController)}
+                    composable("icon_detail"){IconDetailScreen(navController)}
+                    composable("text_field"){TextFieldScreen(navController)}
+                    composable("password_field"){PasswordFieldScreen(navController)}
                 }
             }
         }
