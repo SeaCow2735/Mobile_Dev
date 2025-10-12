@@ -51,8 +51,9 @@ class MainActivity : ComponentActivity() {
                     navController = navController,
                     startDestination = "main"
                 ) {
-                    composable("main") { MainLayout(navController) }
-                    composable("ui_components") { UIComponentsScreen() }
+                    composable("main") { MainLayoutScreen(navController) }
+                    composable("ui_components") { UIComponentsScreen(navController) }
+                    composable("text_detail"){TextDetailScreen(navController)}
                 }
             }
         }
@@ -60,7 +61,7 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun MainLayout(navController: NavController) {
+fun MainLayoutScreen(navController: NavController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
