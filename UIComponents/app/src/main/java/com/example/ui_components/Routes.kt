@@ -14,4 +14,9 @@ object Routes {
     //Input
     const val TextField = "text_field"
     const val PasswordField = "password_field"
+
+    //Layout
+    const val Column="column"
+    const val Row="row"
+    const val Box="box"
 }

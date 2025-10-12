@@ -47,7 +47,7 @@ fun PasswordFieldScreen(
     modifier: Modifier = Modifier,
     label: String = "Password"
 ) {
-    // Màn hình tự quản lý state → không cần truyền value/onValueChange từ NavHost
+
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -102,15 +102,15 @@ fun PasswordFieldScreen(
 
                 // 🎨 Tùy chỉnh màu ở đây:
                 colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.Black,              // màu chữ khi đang nhập
-                    unfocusedTextColor = Color.Black,            // màu chữ khi không nhập
-                    cursorColor = Color(0xFF2196F3),             // màu con trỏ
-                    focusedIndicatorColor = Color(0xFFB0BEC5),   // viền khi focus
-                    unfocusedIndicatorColor = Color(0xFFB0BEC5), // viền khi unfocus
-                    focusedContainerColor = Color.Transparent,   // nền khi focus
-                    unfocusedContainerColor = Color.Transparent, // nền khi unfocus
-                    focusedLabelColor = Color(0xFF2196F3),       // màu nhãn khi focus
-                    unfocusedLabelColor = Color.Gray             // màu nhãn khi unfocus
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    cursorColor = Color(0xFF2196F3),
+                    focusedIndicatorColor = Color(0xFFB0BEC5),
+                    unfocusedIndicatorColor = Color(0xFFB0BEC5),
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedLabelColor = Color(0xFF2196F3),
+                    unfocusedLabelColor = Color.Gray
                 ),
                 modifier = Modifier
                     .fillMaxWidth()

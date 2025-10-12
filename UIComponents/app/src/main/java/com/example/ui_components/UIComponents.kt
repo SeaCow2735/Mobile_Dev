@@ -178,7 +178,7 @@ fun UIComponentsScreen(navController: NavController) {
                     .padding(vertical = 5.dp)
             )
             Button(
-                onClick = {},
+                onClick = { navController.navigate(Routes.Column)},
                 modifier = Modifier
                     .padding(7.dp),
                 shape = RoundedCornerShape(16.dp),
@@ -195,7 +195,7 @@ fun UIComponentsScreen(navController: NavController) {
             }
 
             Button(
-                onClick = {},
+                onClick = {navController.navigate(Routes.Row)},
                 modifier = Modifier
                     .padding(7.dp),
                 shape = RoundedCornerShape(16.dp),
@@ -211,7 +211,7 @@ fun UIComponentsScreen(navController: NavController) {
             }
 
             Button(
-                onClick = {},
+                onClick = {navController.navigate(Routes.Box)},
                 modifier = Modifier
                     .padding(7.dp),
                 shape = RoundedCornerShape(16.dp),
