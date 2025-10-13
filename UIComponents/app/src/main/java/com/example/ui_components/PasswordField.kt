@@ -1,34 +1,14 @@
 package com.example.ui_components
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,9 +27,9 @@ fun PasswordFieldScreen(
     modifier: Modifier = Modifier,
     label: String = "Password"
 ) {
-
     var password by rememberSaveable { mutableStateOf("") }
     var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -82,42 +62,84 @@ fun PasswordFieldScreen(
             )
         }
 
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Nhập mật khẩu") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(
-                            imageVector = if (passwordVisible) Icons.Filled.Visibility
-                            else Icons.Filled.VisibilityOff,
-                            contentDescription = if (passwordVisible) "Ẩn mật khẩu" else "Hiện mật khẩu"
-                        )
-                    }
-                },
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = {
+                        password = it
 
-                // 🎨 Tùy chỉnh màu ở đây:
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    cursorColor = Color(0xFF2196F3),
-                    focusedIndicatorColor = Color(0xFFB0BEC5),
-                    unfocusedIndicatorColor = Color(0xFFB0BEC5),
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedLabelColor = Color(0xFF2196F3),
-                    unfocusedLabelColor = Color.Gray
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
+                        // Kiểm tra điều kiện đơn giản
+                        errorMessage = when {
+                            password.isBlank() -> "Mật khẩu không được để trống"
+                            password.contains(" ") -> "Mật khẩu không được chứa khoảng trắng"
+                            password.length < 6 -> "Mật khẩu phải có ít nhất 6 ký tự"
+                            else -> ""
+                        }
+                    },
+                    label = { Text("Nhập mật khẩu") },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    visualTransformation = if (passwordVisible)
+                        VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                            Icon(
+                                imageVector = if (passwordVisible)
+                                    Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                                contentDescription = if (passwordVisible)
+                                    "Ẩn mật khẩu" else "Hiện mật khẩu"
+                            )
+                        }
+                    },
+                    isError = errorMessage.isNotEmpty(),
+                    colors = TextFieldDefaults.colors(
+                        focusedTextColor = Color.Black,
+                        unfocusedTextColor = Color.Black,
+                        cursorColor = Color(0xFF2196F3),
+                        focusedIndicatorColor = if (errorMessage.isEmpty()) Color(0xFF2196F3) else Color.Red,
+                        unfocusedIndicatorColor = if (errorMessage.isEmpty()) Color(0xFFB0BEC5) else Color.Red,
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedLabelColor = if (errorMessage.isEmpty()) Color(0xFF2196F3) else Color.Red,
+                        unfocusedLabelColor = Color.Gray
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                )
 
-            )
+                // Thông báo lỗi (nếu có)
+                if (errorMessage.isNotEmpty()) {
+                    Text(
+                        text = errorMessage,
+                        color = Color.Red,
+                        fontSize = 14.sp,
+                        modifier = Modifier
+                            .align(Alignment.Start)
+                            .padding(start = 32.dp, top = 6.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                Button(
+                    onClick = { navController.popBackStack() },
+                    enabled = errorMessage.isEmpty() && password.isNotEmpty(),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (errorMessage.isEmpty()) Color(0xFF2196F3)
+                        else Color.LightGray
+                    )
+                ) {
+                    Text("Xác nhận", color = Color.White)
+                }
+            }
         }
     }
 }
-
