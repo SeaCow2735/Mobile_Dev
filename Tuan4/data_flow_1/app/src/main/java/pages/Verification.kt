@@ -1,6 +1,8 @@
 package pages
 
+import Components.SharedAuthViewModel
 import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,14 +55,21 @@ import androidx.navigation.NavController
 import com.example.data_flow.R
 import com.example.data_flow.Routes
 import com.example.data_flow.components.OtpInputField
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+
 
 @Composable
-fun VerificationScreen(navController: NavController) {
+fun VerificationScreen(
+    navController: NavController,
+    sharedViewModel : SharedAuthViewModel
+    ) {
     val bg = Color(0xFFEAF5FF)
     val card = Color(0xFFD7EBFF)
     val arrowBg = Color(0xFF111827)
     val titleBlue = Color(0xFF2196F3)
     var otpValue = rememberSaveable { mutableStateOf("") }
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -133,7 +142,15 @@ fun VerificationScreen(navController: NavController) {
                 count = 6,
                 mask = true,
                 onFilled = { code ->
-                    println("OTP nhập là: $code")
+                    sharedViewModel.otp = code
+                    if (code == "123456") {
+                        // OK -> màn hình mk mới
+                        navController.navigate(Routes.NewPassword)
+                        println("inputOTP11@=${sharedViewModel.otp}")
+                    } else {
+                        // Sai mã -> báo lỗi
+                        Toast.makeText(context, "Mã OTP không đúng", Toast.LENGTH_SHORT).show()
+                    }
                 }
             )
         }

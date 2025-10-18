@@ -1,5 +1,6 @@
 package com.example.data_flow
 
+import Components.SharedAuthViewModel
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -50,9 +51,12 @@ import android.util.Patterns
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.data_flow.components.OtpInputField
 import pages.ForgetPasswordScreen
 import pages.LoginScreen
+import pages.NewPasswordScreen
+import pages.SuccessScreen
 import pages.VerificationScreen
 
 
@@ -62,15 +66,18 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
+            val sharedViewModel: SharedAuthViewModel = viewModel()
             Data_FlowTheme {
                 NavHost(
                     navController= navController,
-                    startDestination = "verification"
+                    startDestination = "main"
                 ){
-                    composable("main"){RegisterScreen(navController)}
-                    composable("login"){ LoginScreen(navController) }
-                    composable("forget_password"){ ForgetPasswordScreen(navController) }
-                    composable("verification"){ VerificationScreen(navController) }
+                    composable("main"){RegisterScreen(navController,sharedViewModel)}
+                    composable("login"){ LoginScreen(navController, sharedViewModel) }
+                    composable("forget_password"){ ForgetPasswordScreen(navController, sharedViewModel) }
+                    composable("verification"){ VerificationScreen(navController, sharedViewModel) }
+                    composable("new_password"){ NewPasswordScreen(navController, sharedViewModel) }
+                    composable("success"){ SuccessScreen(navController, sharedViewModel) }
                 }
             }
         }
@@ -78,7 +85,10 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun RegisterScreen(navController: NavController){
+fun RegisterScreen(
+    navController: NavController,
+    sharedViewModel: SharedAuthViewModel
+){
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -119,10 +129,10 @@ fun RegisterScreen(navController: NavController){
 
             Spacer(Modifier.height(25.dp))
 
-            var email by rememberSaveable { mutableStateOf("") }
+
             var emailError by remember { mutableStateOf<String?>(null) }
 
-            var password by rememberSaveable { mutableStateOf("") }
+
             var passwordError by remember { mutableStateOf<String?>(null) }
             var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -141,9 +151,9 @@ fun RegisterScreen(navController: NavController){
 
             // EMAIL
             OutlinedTextField(
-                value = email,
+                value = sharedViewModel.email,
                 onValueChange = {
-                    email = it
+                    sharedViewModel.email = it
                     emailError = validateEmail(it)
                 },
                 modifier = Modifier
@@ -173,9 +183,9 @@ fun RegisterScreen(navController: NavController){
 
             // PASSWORD
             OutlinedTextField(
-                value = password,
+                value = sharedViewModel.password,
                 onValueChange = {
-                    password = it
+                    sharedViewModel.password = it
                     passwordError = validatePassword(it)
                 },
                 label = { Text("Nhập mật khẩu") },
@@ -212,7 +222,11 @@ fun RegisterScreen(navController: NavController){
 
             Spacer(Modifier.height(20.dp))
 
-            val formValid = emailError == null && passwordError == null && email.isNotBlank() && password.isNotBlank()
+            val formValid = emailError == null &&
+                    passwordError == null &&
+                    sharedViewModel.email.isNotBlank() &&
+                    sharedViewModel.password.isNotBlank()
+
 
             Button(
                 onClick = {navController.navigate(Routes.Login)},
@@ -226,18 +240,22 @@ fun RegisterScreen(navController: NavController){
                 Text("Xác nhận", color = Color.White)
             }
 
-            Spacer(Modifier.height(20.dp))
-
-            Button(
-                onClick = {navController.navigate(Routes.Login)},
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF2196F3),
-                    disabledContainerColor = Color(0xFFBBDEFB),
-                    disabledContentColor = Color.White.copy(alpha = 0.7f)
-                )
-            ) {
-                Text("Chuyển trang", color = Color.White)
-            }
+//            Spacer(Modifier.height(20.dp))
+//
+//            Button(
+//                onClick = {
+//
+//                    println("inputEmail=${sharedViewModel.email}")
+//                    println("inputPass=${sharedViewModel.password}")
+//                    navController.navigate(Routes.Login)},
+//                colors = ButtonDefaults.buttonColors(
+//                    containerColor = Color(0xFF2196F3),
+//                    disabledContainerColor = Color(0xFFBBDEFB),
+//                    disabledContentColor = Color.White.copy(alpha = 0.7f)
+//                )
+//            ) {
+//                Text("Chuyển trang", color = Color.White)
+//            }
         }
     }
 

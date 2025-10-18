@@ -1,5 +1,6 @@
 package pages
 
+
 import Components.SharedAuthViewModel
 import android.util.Patterns
 import android.widget.Toast
@@ -42,7 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -55,17 +55,22 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.data_flow.R
 import com.example.data_flow.Routes
+import com.example.data_flow.components.OtpInputField
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
+
 
 @Composable
-fun LoginScreen(
+fun NewPasswordScreen(
     navController: NavController,
-    sharedViewModel: SharedAuthViewModel
-){
-    val context = LocalContext.current
+    sharedViewModel : SharedAuthViewModel
+    ) {
     val bg = Color(0xFFEAF5FF)
     val card = Color(0xFFD7EBFF)
     val arrowBg = Color(0xFF111827)
     val titleBlue = Color(0xFF2196F3)
+    var otpValue = rememberSaveable { mutableStateOf("") }
+    val context = LocalContext.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -98,7 +103,6 @@ fun LoginScreen(
                 .padding(bottom = 48.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Spacer(modifier = Modifier.height(10.dp))
 
             Image(
@@ -109,7 +113,8 @@ fun LoginScreen(
                     .width(180.dp)
             )
 
-            Text("Smart Tasks",
+            Text(
+                "Smart Tasks",
                 color = Color(0xFF2196F3),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold
@@ -117,26 +122,21 @@ fun LoginScreen(
 
             Spacer(Modifier.height(20.dp))
 
-            Text("Đăng Nhập",
+            Text(
+                "Mật Khẩu Mới",
                 color = Color.Black,
                 fontSize = 36.sp,
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(Modifier.height(25.dp))
+            Spacer(Modifier.height(20.dp))
 
-            var email by rememberSaveable { mutableStateOf("") }
-            var emailError by remember { mutableStateOf<String?>(null) }
+            var password2 by rememberSaveable { mutableStateOf("") }
 
-            var password by rememberSaveable { mutableStateOf("") }
             var passwordError by remember { mutableStateOf<String?>(null) }
-            var passwordVisible by rememberSaveable { mutableStateOf(false) }
+            var password2Error by remember { mutableStateOf<String?>(null) }
 
-            fun validateEmail(input: String): String? = when {
-                input.isBlank() -> "Email không được để trống"
-                !Patterns.EMAIL_ADDRESS.matcher(input).matches() -> "Email không hợp lệ"
-                else -> null
-            }
+            var passwordVisible by rememberSaveable { mutableStateOf(false) }
 
             fun validatePassword(input: String): String? = when {
                 input.isBlank() -> "Mật khẩu không được để trống"
@@ -145,44 +145,24 @@ fun LoginScreen(
                 else -> null
             }
 
-            // EMAIL
-            OutlinedTextField(
-                value = email,
-                onValueChange = {
-                    email = it
-                    emailError = validateEmail(it)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                label = { Text("Email") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                isError = emailError != null,
-                supportingText = {
-                    emailError?.let { Text(it, color = Color.Red, fontSize = 12.sp) }
-                },
-                colors = TextFieldDefaults.colors(
-                    focusedTextColor = Color.Black,
-                    unfocusedTextColor = Color.Black,
-                    cursorColor = Color(0xFF2196F3),
-                    focusedIndicatorColor = if (emailError == null) Color(0xFF2196F3) else Color.Red,
-                    unfocusedIndicatorColor = if (emailError == null) Color(0xFFB0BEC5) else Color.Red,
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedLabelColor = if (emailError == null) Color(0xFF2196F3) else Color.Red,
-                    unfocusedLabelColor = Color.Gray
-                )
-            )
+            fun validateConfirm(pass: String, confirm: String): String? = when {
+                confirm.isBlank() -> "Vui lòng nhập lại mật khẩu"
+                confirm.contains(" ") -> "Mật khẩu không được chứa khoảng trắng"
+                confirm.length < 6 -> "Mật khẩu phải có ít nhất 6 ký tự"
+                confirm != pass -> "Mật khẩu nhập lại không khớp"
+                else -> null
+            }
 
-            Spacer(Modifier.height(16.dp))
-
-            // PASSWORD
+// Mật khẩu mới
             OutlinedTextField(
-                value = password,
+                value = sharedViewModel.password,
                 onValueChange = {
-                    password = it
+                    sharedViewModel.password = it
                     passwordError = validatePassword(it)
+                    // Đồng thời re-validate ô nhập lại nếu đã gõ
+                    if (password2.isNotEmpty()) {
+                        password2Error = validateConfirm(sharedViewModel.password, password2)
+                    }
                 },
                 label = { Text("Nhập mật khẩu") },
                 singleLine = true,
@@ -197,12 +177,8 @@ fun LoginScreen(
                     }
                 },
                 isError = passwordError != null,
-                supportingText = {
-                    passwordError?.let { Text(it, color = Color.Red, fontSize = 12.sp) }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                supportingText = { passwordError?.let { Text(it, color = Color.Red, fontSize = 12.sp) } },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
                 colors = TextFieldDefaults.colors(
                     focusedTextColor = Color.Black,
                     unfocusedTextColor = Color.Black,
@@ -216,32 +192,48 @@ fun LoginScreen(
                 )
             )
 
-            Text("Quên Mật Khẩu?",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 15.dp)
-                            .clickable{navController.navigate(Routes.ForgetPassword)},
-                        color = Color(0xFF2196F3),
-                        textDecoration = TextDecoration.Underline,
-                        textAlign = TextAlign.Start
-                )
-            Spacer(Modifier.height(20.dp))
-
-            val formValid = emailError == null && passwordError == null && email.isNotBlank() && password.isNotBlank()
-
-            Button(
-                onClick =  {
-                    val inputEmail = email.trim().lowercase()
-                    val savedEmail = sharedViewModel.email.trim().lowercase()
-                    val inputPass  = password
-                    val savedPass  = sharedViewModel.password
-
-                    if (inputEmail == savedEmail && inputPass == savedPass) {
-                        navController.navigate("success")
-                    } else {
-                        Toast.makeText(context, "Sai email hoặc mật khẩu", Toast.LENGTH_SHORT).show()
+// Nhập lại mật khẩu
+            OutlinedTextField(
+                value = password2,
+                onValueChange = {
+                    password2 = it
+                    password2Error = validateConfirm(sharedViewModel.password, it)
+                },
+                label = { Text("Nhập lại mật khẩu") },
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                        Icon(
+                            imageVector = if (passwordVisible) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
+                            contentDescription = if (passwordVisible) "Ẩn mật khẩu" else "Hiện mật khẩu"
+                        )
                     }
                 },
+                isError = password2Error != null,
+                supportingText = { password2Error?.let { Text(it, color = Color.Red, fontSize = 12.sp) } },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = Color.Black,
+                    unfocusedTextColor = Color.Black,
+                    cursorColor = Color(0xFF2196F3),
+                    focusedIndicatorColor = if (password2Error == null) Color(0xFF2196F3) else Color.Red,
+                    unfocusedIndicatorColor = if (password2Error == null) Color(0xFFB0BEC5) else Color.Red,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedLabelColor = if (password2Error == null) Color(0xFF2196F3) else Color.Red,
+                    unfocusedLabelColor = Color.Gray
+                )
+            )
+
+            val formValid = passwordError == null &&
+                    password2Error == null &&
+                    sharedViewModel.password.isNotBlank() &&
+                    password2.isNotBlank()
+
+            Button(
+                onClick = {navController.navigate(Routes.Login)},
                 enabled = formValid,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF2196F3),
@@ -251,6 +243,7 @@ fun LoginScreen(
             ) {
                 Text("Xác nhận", color = Color.White)
             }
+
         }
     }
 }

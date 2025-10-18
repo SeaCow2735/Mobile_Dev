@@ -5,5 +5,6 @@ object Routes {
     const val Login = "login"
     const val ForgetPassword="forget_password"
     const val Verification="verification"
-    const val Otp="otp"
+    const val NewPassword="new_password"
+    const val Success="success"
 }

@@ -1,6 +1,8 @@
 package pages
 
+import Components.SharedAuthViewModel
 import android.util.Patterns
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -54,7 +57,11 @@ import com.example.data_flow.R
 import com.example.data_flow.Routes
 
 @Composable
-fun ForgetPasswordScreen(navController: NavController){
+fun ForgetPasswordScreen(
+    navController: NavController,
+    sharedViewModel: SharedAuthViewModel
+    ){
+    val context = LocalContext.current
     val bg = Color(0xFFEAF5FF)
     val card = Color(0xFFD7EBFF)
     val arrowBg = Color(0xFF111827)
@@ -161,7 +168,17 @@ fun ForgetPasswordScreen(navController: NavController){
           val formValid = emailError == null&& email.isNotBlank()
 
             Button(
-                onClick = {navController.navigate(Routes.Login)},
+                onClick = {
+                    if(email.trim()==sharedViewModel.email.trim())
+                    {
+                        sharedViewModel.passClear()
+                        navController.navigate(Routes.Verification)
+                    }
+                    else
+                    {
+                        Toast.makeText(context, "Email không trùng với tài khoản đã đăng ký", Toast.LENGTH_SHORT).show()
+                    }
+                          },
                 enabled = formValid,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF2196F3),
