@@ -1,5 +1,7 @@
 package com.example.quanlythuvien
 
 object Routes {
-    const val Main="main"
+    const val Home="home"
+    const val Books="books"
+    const val Studens="students"
 }
