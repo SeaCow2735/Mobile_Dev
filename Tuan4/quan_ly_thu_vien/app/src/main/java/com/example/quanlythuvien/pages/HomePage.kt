@@ -16,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -43,182 +44,169 @@ import androidx.navigation.NavController
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.quanlythuvien.NavItem
 import com.example.quanlythuvien.Routes
 import com.example.quanlythuvien.data.SharedVM
 
 @Composable
 fun HomePage(navController: NavController, vm: SharedVM) {
-    val navItemList= listOf(
+    val navItemList = listOf(
         NavItem("Home", Icons.Default.Home, Routes.Home),
         NavItem("Books", Icons.Default.Book, Routes.Books),
-        NavItem("SV", Icons.Default.Person, Routes.Studens),
+        NavItem("SV", Icons.Default.Person, Routes.Students),
     )
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+    var studentInput by rememberSaveable { mutableStateOf(vm.selectedStudent) }
 
-    var selectedIndex by remember { mutableStateOf(0) }
-
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            bottomBar = {
-                NavigationBar {
-                    navItemList.forEachIndexed { index, item ->
-                        NavigationBarItem(
-                            selected = index==selectedIndex,
-                            onClick = {
-                                index==selectedIndex
-                                navController.navigate(item.routes)
-                                      },
-                            icon = { Icon(imageVector = item.icon, contentDescription = item.label) },
-                            label = { Text(item.label) }
-                        )
-                    }
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        bottomBar = {
+            NavigationBar {
+                navItemList.forEach { item ->
+                    NavigationBarItem(
+                        selected = currentRoute == item.routes,
+                        onClick = {
+                            if (currentRoute != item.routes) {
+                                navController.navigate(item.routes) {
+                                    popUpTo(navController.graph.startDestinationId)
+                                    launchSingleTop = true
+                                }
+                            }
+                        },
+                        icon = { Icon(item.icon, contentDescription = item.label) },
+                        label = { Text(item.label) }
+                    )
                 }
             }
-        ) { innerPadding ->
-            Box(
+        }
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+                .statusBarsPadding()
+        ) {
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
-                    .statusBarsPadding()
+                    .padding(bottom = 16.dp)
+                    .verticalScroll(rememberScrollState()),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
+                Text(
+                    text = "Hệ thống\nQuản lý Thư viện",
+                    fontSize = 32.sp,
+                    lineHeight = 36.sp,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(Modifier.height(30.dp))
+
+                //SINH VIÊN
+                Text(
+                    text = "Sinh viên",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 16.dp)
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, top = 8.dp)
+                )
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = "Hệ thống\nQuản lý Thư viện",
-                        fontSize = 32.sp,
-                        lineHeight = 36.sp,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
+                    OutlinedTextField(
+                        value = studentInput,
+                        onValueChange = { studentInput = it },
+                        singleLine = true,
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(10.dp),
+                        placeholder = { Text("Tên sinh viên") }
                     )
 
-                    Spacer(Modifier.height(30.dp))
+                    Spacer(Modifier.width(12.dp))
 
-                    //STATE
-                    var student by rememberSaveable { mutableStateOf("Nguyen Van A") }
-                    var books by rememberSaveable { mutableStateOf(listOf("Sách 01", "Sách 02")) }
-                    var checked by rememberSaveable { mutableStateOf(setOf(0, 1)) }
-
-                    //SINH VIÊN
-                    Text(
-                        text = "Sinh viên",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, top = 8.dp)
-                    )
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                    Button(
+                        onClick = {
+                            if (studentInput.trim().isNotEmpty()) vm.selectStudent(studentInput)
+                            vm.randomizeBooksForSelected(min = 0, max = 6)
+//                            studentInput = ""
+                        },
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1766C4)),
+                        modifier = Modifier.height(44.dp),
+                        enabled = true
                     ) {
-                        OutlinedTextField(
-                            value = student,
-                            onValueChange = { student = it },
-                            singleLine = true,
-                            modifier = Modifier.weight(1f),
-                            shape = RoundedCornerShape(10.dp),
-                            placeholder = { Text("Tên sinh viên") }
-                        )
-
-                        Spacer(Modifier.width(12.dp))
-
-                        Button(
-                            onClick = { /* TODO: mở dialog chọn sinh viên */ },
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1766C4)),
-                            modifier = Modifier.height(44.dp)
-                        ) {
-                            Text("Thay đổi", color = Color.White)
-                        }
+                        Text("Thay đổi", color = Color.White)
                     }
+                }
 
-                    //DANH SÁCH SÁCH
-                    Text(
-                        text = "Danh sách sách",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
-                    )
+                //DANH SÁCH SÁCH (theo SV đang chọn)
+                Text(
+                    text = "Danh sách sách",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+                )
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFFE6E6E6))
-                            .padding(vertical = 12.dp)
-                    ) {
-                        Column(Modifier.fillMaxWidth()) {
-                            books.forEachIndexed { index, title ->
+                val books = vm.booksForSelected()
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFE6E6E6))
+                        .padding(vertical = 12.dp)
+                ) {
+                    Column(Modifier.fillMaxWidth()) {
+                        if (books.isEmpty()) {
+                            Text(
+                                "Chưa có sách nào",
+                                color = Color.DarkGray,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                textAlign = TextAlign.Center
+                            )
+                        } else {
+                            books.forEachIndexed { index, name ->
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(horizontal = 16.dp, vertical = 6.dp)
                                         .clip(RoundedCornerShape(24.dp))
                                         .background(Color.White)
-                                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    val isChecked = checked.contains(index)
-                                    Checkbox(
-                                        checked = isChecked,
-                                        onCheckedChange = {
-                                            checked = if (it) checked + index else checked - index
-                                        },
-                                        colors = CheckboxDefaults.colors(
-                                            checkedColor = Color(0xFF8C004A)
-                                        )
+                                    Text(
+                                        text = "${index + 1}. $name",
+                                        fontSize = 16.sp,
+                                        modifier = Modifier.weight(1f)
                                     )
-
-                                    OutlinedTextField(
-                                        value = title,
-                                        onValueChange = { new ->
-                                            books = books.toMutableList().also { it[index] = new }
-                                        },
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .height(50.dp),
-                                        singleLine = true,
-                                        shape = RoundedCornerShape(24.dp),
-                                        placeholder = { Text("Tên sách") },
-                                        colors = TextFieldDefaults.colors(
-                                            focusedContainerColor = Color.Transparent,
-                                            unfocusedContainerColor = Color.Transparent,
-                                            focusedIndicatorColor = Color(0xFFBDBDBD),
-                                            unfocusedIndicatorColor = Color(0xFFE0E0E0),
-                                            cursorColor = Color.Black
-                                        )
-                                    )
+                                    IconButton(onClick = { vm.removeBookAtForSelected(index) }) {
+                                        Icon(Icons.Default.Delete, contentDescription = "Xóa sách")
+                                    }
                                 }
                             }
                         }
-                    }
-
-                    Spacer(Modifier.height(16.dp))
-
-                    Button(
-                        onClick = { books = books + "Sách ${books.size + 1}" },
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .height(48.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1766C4))
-                    ) {
-                        Text("Thêm", color = Color.White, fontSize = 16.sp)
                     }
                 }
             }
         }
     }
+}
+
 

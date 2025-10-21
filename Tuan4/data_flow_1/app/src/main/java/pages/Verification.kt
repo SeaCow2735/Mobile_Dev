@@ -130,7 +130,7 @@ fun VerificationScreen(
 
             Spacer(Modifier.height(10.dp))
 
-            Text("Enter the code\nwe just send you on your registered Email",
+            Text("Enter the code 123456\nwe just send you on your registered Email",
                 textAlign = TextAlign.Center,
                 color = Color.Gray,
                 )

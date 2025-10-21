@@ -11,11 +11,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
@@ -43,6 +46,7 @@ import androidx.navigation.NavController
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.IconButton
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.quanlythuvien.NavItem
 import com.example.quanlythuvien.Routes
@@ -53,7 +57,7 @@ fun StudentsPage(navController: NavController, vm: SharedVM) {
     val navItemList= listOf(
         NavItem("Home", Icons.Default.Home, Routes.Home),
         NavItem("Books", Icons.Default.Book, Routes.Books),
-        NavItem("SV", Icons.Default.Person, Routes.Studens),
+        NavItem("SV", Icons.Default.Person, Routes.Students),
     )
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -103,12 +107,9 @@ fun StudentsPage(navController: NavController, vm: SharedVM) {
 
                 Spacer(Modifier.height(30.dp))
 
-                //STATE
-                var student by rememberSaveable { mutableStateOf("Nguyen Van A") }
-                var books by rememberSaveable { mutableStateOf(listOf("Sách 01", "Sách 02")) }
-                var checked by rememberSaveable { mutableStateOf(setOf(0, 1)) }
+                //NHẬP TÊN SINH VIÊN
+                var newStudent by rememberSaveable { mutableStateOf("") }
 
-                //SINH VIÊN
                 Text(
                     text = "Sinh viên",
                     fontSize = 20.sp,
@@ -125,8 +126,8 @@ fun StudentsPage(navController: NavController, vm: SharedVM) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     OutlinedTextField(
-                        value = student,
-                        onValueChange = { student = it },
+                        value = newStudent,
+                        onValueChange = { newStudent = it },
                         singleLine = true,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(10.dp),
@@ -136,16 +137,20 @@ fun StudentsPage(navController: NavController, vm: SharedVM) {
                     Spacer(Modifier.width(12.dp))
 
                     Button(
-                        onClick = { /* TODO: mở dialog chọn sinh viên */ },
+                        onClick = {
+                            vm.addStudent(newStudent)
+                            newStudent = ""
+                        },
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1766C4)),
-                        modifier = Modifier.height(44.dp)
+                        modifier = Modifier.height(44.dp),
+                        enabled = newStudent.trim().isNotEmpty()
                     ) {
-                        Text("Thay đổi", color = Color.White)
+                        Text("Thêm", color = Color.White)
                     }
                 }
 
-                //DANH SÁCH SÁCH
+                //DANH SÁCH SINH VIÊN
                 Text(
                     text = "Danh sách sinh viên",
                     fontSize = 20.sp,
@@ -158,68 +163,51 @@ fun StudentsPage(navController: NavController, vm: SharedVM) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .weight(1f)
                         .padding(horizontal = 16.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .background(Color(0xFFE6E6E6))
                         .padding(vertical = 12.dp)
                 ) {
-                    Column(Modifier.fillMaxWidth()) {
-                        books.forEachIndexed { index, title ->
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 6.dp)
-                                    .clip(RoundedCornerShape(24.dp))
-                                    .background(Color.White)
-                                    .padding(horizontal = 12.dp, vertical = 6.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                val isChecked = checked.contains(index)
-                                Checkbox(
-                                    checked = isChecked,
-                                    onCheckedChange = {
-                                        checked = if (it) checked + index else checked - index
-                                    },
-                                    colors = CheckboxDefaults.colors(
-                                        checkedColor = Color(0xFF8C004A)
-                                    )
-                                )
-
-                                OutlinedTextField(
-                                    value = title,
-                                    onValueChange = { new ->
-                                        books = books.toMutableList().also { it[index] = new }
-                                    },
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp)
+                    ) {
+                        if (vm.students.isEmpty()) {
+                            item {
+                                Text(
+                                    "Chưa có sách nào",
+                                    color = Color.DarkGray,
                                     modifier = Modifier
-                                        .weight(1f)
-                                        .height(50.dp),
-                                    singleLine = true,
-                                    shape = RoundedCornerShape(24.dp),
-                                    placeholder = { Text("Tên sách") },
-                                    colors = TextFieldDefaults.colors(
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedContainerColor = Color.Transparent,
-                                        focusedIndicatorColor = Color(0xFFBDBDBD),
-                                        unfocusedIndicatorColor = Color(0xFFE0E0E0),
-                                        cursorColor = Color.Black
-                                    )
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp),
+                                    textAlign = TextAlign.Center
                                 )
+                            }
+                        } else {
+                            itemsIndexed(vm.students) { index, name ->
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 6.dp)
+                                        .clip(RoundedCornerShape(24.dp))
+                                        .background(Color.White)
+                                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = "${index + 1}. $name",
+                                        fontSize = 16.sp,
+                                        modifier = Modifier.weight(1f)
+                                    )
+                                    IconButton(onClick = { vm.removeStudentAt(index) }) {
+                                        Icon(Icons.Default.Delete, contentDescription = "Xóa sinh viên")
+                                    }
+                                }
                             }
                         }
                     }
-                }
-
-                Spacer(Modifier.height(16.dp))
-
-                Button(
-                    onClick = { books = books + "Sách ${books.size + 1}" },
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .height(48.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF1766C4))
-                ) {
-                    Text("Thêm", color = Color.White, fontSize = 16.sp)
                 }
             }
         }
