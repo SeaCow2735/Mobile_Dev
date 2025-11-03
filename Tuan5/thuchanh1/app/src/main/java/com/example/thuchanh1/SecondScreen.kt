@@ -52,31 +52,36 @@ fun SecondScreen(navController: NavController) {
         verticalArrangement = Arrangement.Center
     ) {
         ElevatedCard(
-            modifier = Modifier.fillMaxWidth(0.92f)
+            modifier = Modifier
+                .fillMaxWidth(0.92f),
         ) {
             Column(
-                modifier = Modifier.padding(20.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                // Avatar
                 AsyncImage(
                     model = photoUrl,
                     contentDescription = "Avatar",
                     modifier = Modifier
                         .size(96.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    alignment = Alignment.Center
                 )
 
                 Spacer(Modifier.height(16.dp))
 
                 Text(
                     text = name,
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.SemiBold),
                     textAlign = TextAlign.Center
                 )
+
                 Spacer(Modifier.height(6.dp))
+
                 Text(
                     text = email,
                     style = MaterialTheme.typography.bodyMedium,
@@ -86,14 +91,13 @@ fun SecondScreen(navController: NavController) {
             }
         }
 
+
         Spacer(Modifier.height(24.dp))
 
-        // Nút Đăng xuất (Sign out)
+
         Button(
             onClick = {
-                // 1) Đăng xuất Firebase (hết phiên Firebase)
                 auth.signOut()
-                // 2) Đăng xuất Google trên thiết bị cho app này
                 val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
                 val client = GoogleSignIn.getClient(activity, gso)
                 client.signOut().addOnCompleteListener {
@@ -110,12 +114,9 @@ fun SecondScreen(navController: NavController) {
 
         Spacer(Modifier.height(12.dp))
 
-        // Nút Thu hồi uỷ quyền (Revoke access)
         Button(
             onClick = {
-                // 1) Xoá phiên Firebase
                 auth.signOut()
-                // 2) Thu hồi quyền đã cấp (lần sau đăng nhập sẽ xin lại từ đầu)
                 val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN).build()
                 val client = GoogleSignIn.getClient(activity, gso)
                 client.revokeAccess().addOnCompleteListener {
